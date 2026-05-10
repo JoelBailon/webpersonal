@@ -21,7 +21,6 @@ deepface==0.0.95
 distlib==0.3.8
 Django==5.2.3
 dlib==20.0.0
-dlib-bin==19.24.2
 docutils==0.22
 et_xmlfile==2.0.0
 exceptiongroup==1.2.1
