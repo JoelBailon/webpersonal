@@ -10,6 +10,11 @@ from django.urls import reverse
 from django.conf import settings
 from django.core.files.base import ContentFile
 
+from django.http import HttpResponse
+
+def prueba(request):
+    return HttpResponse("FUNCIONANDO VERCEL")
+
 from .models import (
     Cliente,
     Tarjeta,
