@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inicio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .beneficio {
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .beneficio p:not(.beneficio-texto) {
+      margin-bottom: 0.25rem;
+      font-weight: 700;
+      color: #1E40AF;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.4s ease;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .beneficio:hover {
+      background-color: #e0e7ff;
+    }
+
+    .beneficio:hover p:not(.beneficio-texto) {
+      max-height: 50px;
+      padding-left: 0.25rem;
+      padding-right: 0.25rem;
+    }
+
+    .beneficio-texto {
+      font-weight: normal;
+      color: #4B5563;
+      font-size: 0.875rem;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.4s ease;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .beneficio:hover .beneficio-texto {
+      max-height: 100px;
+      padding-left: 0.25rem;
+      padding-right: 0.25rem;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-r from-green-200 to-blue-200 flex flex-col items-center p-6 overflow-x-hidden">
+
+  <!-- Logo fijo en esquina superior izquierda sin fondo -->
+  <div class="fixed top-4 left-4 flex items-center space-x-3 z-50">
+    <img src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png" alt="Logo" class="w-14 h-14" />
+    <div>
+      <h1 class="text-3xl font-bold text-black leading-none">TRANSPORTO</h1>
+      <p class="italic text-blue-800 text-sm leading-tight">La forma inteligente de moverse</p>
+    </div>
+  </div>
+
+  <!-- Contenedor principal -->
+  <div class="bg-white bg-opacity-40 backdrop-blur-md p-10 rounded-3xl shadow-xl w-full max-w-5xl mt-24">
+
+    <!-- Sección principal -->
+    <div class="flex flex-col md:flex-row items-center mb-8">
+      <!-- Texto -->
+      <div class="md:w-1/2 w-full text-center md:text-left pr-8">
+        <h2 class="text-2xl font-bold italic text-blue-900 mb-4">TRANSPORTO – VIAJAR NUNCA FUE TAN SIMPLE</h2>
+        <p class="text-gray-700 mb-6 max-w-md mx-auto md:mx-0">
+          Accede a tu cuenta para gestionar tus movimientos, consultar saldos, revisar tu historial de viajes
+          y mantener el control total de tus pagos de pasajes de forma rápida y segura.
+        </p>
+        <a href="{% url 'iniciosecion' %}" class="bg-blue-700 text-white px-6 py-3 rounded-full hover:bg-blue-800 text-lg font-semibold transition">
+          Iniciar Sesión
+        </a>
+      </div>
+
+      <!-- Imagen -->
+      <div class="md:w-1/2 w-full mt-6 md:mt-0 flex justify-center">
+        <img src="https://media.istockphoto.com/id/1140166109/es/vector/personas-en-el-metro.jpg?s=612x612&w=0&k=20&c=6mn1jDV_uJHs1bg8nihCiOA4TATBYmqX0hONLCMATCw="
+             alt="Ilustración bus"
+             class="w-72 h-auto max-w-full rounded-xl shadow-md" />
+      </div>
+    </div>
+
+    <!-- Beneficios -->
+    <div>
+      <h3 class="text-xl font-bold text-center mb-8 text-blue-900">Beneficios de usar nuestra plataforma</h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+
+        <div class="beneficio">
+          <img src="https://img.icons8.com/color/96/bank-card-back-side--v1.png" alt="Tarjeta" class="w-12 h-12 mx-auto mb-2 max-w-full">
+          <p>Recargas en línea:</p>
+          <p class="beneficio-texto">Carga saldo a tu cuenta desde cualquier lugar, sin hacer filas.</p>
+        </div>
+
+        <div class="beneficio">
+          <img src="https://img.icons8.com/color/96/lock--v1.png" alt="Seguridad" class="w-12 h-12 mx-auto mb-2 max-w-full">
+          <p>Seguridad garantizada:</p>
+          <p class="beneficio-texto">Tus transacciones están protegidas con tecnología segura.</p>
+        </div>
+
+        <div class="beneficio">
+          <img src="https://img.icons8.com/color/96/clock--v1.png" alt="Tiempo" class="w-12 h-12 mx-auto mb-2 max-w-full">
+          <p>Ahorro de tiempo:</p>
+          <p class="beneficio-texto">Evita el uso de efectivo y reduce el tiempo en puntos de pago.</p>
+        </div>
+
+        <div class="beneficio">
+          <img src="https://img.icons8.com/color/96/internet--v1.png" alt="Disponible" class="w-12 h-12 mx-auto mb-2 max-w-full">
+          <p>Plataforma 24/7:</p>
+          <p class="beneficio-texto">Accede a tu cuenta cuando lo necesites, sin restricciones.</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

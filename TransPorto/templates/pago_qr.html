@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pago con QR - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Librería para escanear QR -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    body {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    #qr-result {
+      transition: color 0.3s ease, background-color 0.3s ease;
+    }
+  </style>
+</head>
+<body
+  id="body"
+  class="{% if user.tema_preferido == 'dark' %}bg-blue-900 text-white{% else %}bg-gradient-to-r from-yellow-200 to-red-300 text-black{% endif %} min-h-screen flex flex-col items-center justify-center p-6"
+>
+
+  <h1 class="{% if user.tema_preferido == 'dark' %}text-blue-400{% else %}text-black{% endif %} text-3xl font-bold mb-8 text-center">
+    Escanea el código QR para pagar
+  </h1>
+
+  <div id="qr-reader" style="width: 320px;"></div>
+  <div id="qr-result" class="{% if user.tema_preferido == 'dark' %}bg-[#1e1a2a] text-white{% else %}bg-white text-black{% endif %} mt-6 p-4 rounded shadow text-center font-semibold text-lg"></div>
+
+  <script>
+    function onScanSuccess(decodedText, decodedResult) {
+      document.getElementById('qr-result').innerText = "QR Escaneado: " + decodedText;
+
+      fetch("{% url 'procesar_pago_qr' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ cooperativa_id: decodedText })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.success) {
+          document.getElementById('qr-result').innerText = data.message;
+        } else {
+          document.getElementById('qr-result').innerText = "Error: " + data.message;
+        }
+      })
+      .catch(error => {
+        document.getElementById('qr-result').innerText = "Error al procesar el pago.";
+      });
+
+      html5QrcodeScanner.clear();
+    }
+
+    function onScanFailure(error) {
+      // No hacemos nada con fallos menores
+    }
+
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+      "qr-reader", { fps: 10, qrbox: 250 }
+    );
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+  </script>
+
+  <script>
+    const body = document.getElementById('body');
+    const qrResult = document.getElementById('qr-result');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        body.classList.remove('bg-gradient-to-r', 'from-yellow-200', 'to-red-300', 'text-black');
+        body.classList.add('bg-blue-900', 'text-white');
+        qrResult.classList.remove('bg-white', 'text-black');
+        qrResult.classList.add('bg-[#1e1a2a]', 'text-white');
+      } else {
+        body.classList.remove('bg-blue-900', 'text-white');
+        body.classList.add('bg-gradient-to-r', 'from-yellow-200', 'to-red-300', 'text-black');
+        qrResult.classList.remove('bg-[#1e1a2a]', 'text-white');
+        qrResult.classList.add('bg-white', 'text-black');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      let savedTheme = localStorage.getItem('theme') || "{{ user.tema_preferido|default:'light' }}";
+      applyTheme(savedTheme);
+    });
+  </script>
+
+</body>
+</html>

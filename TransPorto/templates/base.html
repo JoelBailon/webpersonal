@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Transporto{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body
+  class="
+  {% if tema_usuario == 'dark' %}
+    bg-[#130b1f] text-white
+  {% else %}
+    bg-gradient-to-r from-green-200 to-blue-300 text-black
+  {% endif %}
+  min-h-screen relative
+  "
+>
+
+  <!-- BARRA SUPERIOR -->
+  <header class="fixed top-0 left-0 right-0 bg-transparent flex justify-between items-center px-6 py-4 z-50">
+    <!-- Logo + Texto -->
+    <div class="flex items-center space-x-3">
+      <img src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png" alt="Logo" class="w-14 h-14" />
+      <div>
+        <h1 id="titulo" class="text-2xl font-bold leading-none
+          {% if tema_usuario == 'dark' %}text-white{% else %}text-black{% endif %}
+        ">TRANSPORTO</h1>
+        <p id="subtitulo" class="italic text-sm leading-tight
+          {% if tema_usuario == 'dark' %}text-white{% else %}text-blue-800{% endif %}
+        ">La forma inteligente de moverse</p>
+      </div>
+    </div>
+
+    <!-- Perfil -->
+    <div class="relative">
+      <button id="perfilBtn"
+        class="flex items-center gap-2 bg-white bg-opacity-70 backdrop-blur-md rounded-full px-5 py-2 shadow-md hover:shadow-lg transition-shadow focus:outline-none
+        {% if tema_usuario == 'dark' %}text-white bg-opacity-20 border border-white{% else %}text-black{% endif %}
+        font-semibold">
+        Bienvenido, {{ user.nombre_usuario }}
+        <!-- Iconos aquí -->
+      </button>
+      <div id="perfilMenu" class="hidden absolute right-0 mt-2 w-44
+        {% if tema_usuario == 'dark' %}bg-[#1e1a2a] text-white{% else %}bg-white text-gray-700{% endif %}
+        rounded-lg shadow-lg py-2 z-50">
+        <!-- Menú contenido -->
+        {% block menu_perfil %}{% endblock %}
+      </div>
+    </div>
+  </header>
+
+  {% block content %}{% endblock %}
+
+  <script>
+    // Toggle menú perfil (simple)
+    document.getElementById('perfilBtn').addEventListener('click', function() {
+      const menu = document.getElementById('perfilMenu');
+      menu.classList.toggle('hidden');
+    });
+    window.addEventListener('click', function(e) {
+      const btn = document.getElementById('perfilBtn');
+      const menu = document.getElementById('perfilMenu');
+      if (!btn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

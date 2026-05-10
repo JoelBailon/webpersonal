@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Información Personal - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+  </style>
+</head>
+<body id="body"
+  class="{% if user.tema_preferido == 'dark' %}bg-blue-900 text-white{% else %}bg-gradient-to-r from-green-200 to-blue-300 text-black{% endif %} min-h-screen flex flex-col items-center p-6"
+>
+
+  <!-- Header -->
+  <header class="fixed top-0 left-0 w-full flex items-center space-x-4 p-4 z-50">
+    <img src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png" alt="bus" class="w-14 h-14" />
+    <div>
+      <h1 id="titulo" class="text-3xl font-bold leading-none transition-colors duration-300">TRANSPORTO</h1>
+      <p id="subtitulo" class="italic leading-none transition-colors duration-300">La forma inteligente de moverse</p>
+    </div>
+  </header>
+
+  <!-- Botón casita (ícono blanco sin fondo ideal para modo oscuro) -->
+  <a href="{% url 'inicio' %}" class="fixed top-4 right-4 w-12 h-12 cursor-pointer z-50" aria-label="Inicio">
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/home.png" alt="Inicio" class="w-full h-full object-contain" />
+  </a>
+
+
+
+  <!-- Contenido principal -->
+  <main class="pt-24 w-full max-w-lg">
+    <div class="{% if user.tema_preferido == 'dark' %}bg-[#1e1a2a] text-white{% else %}bg-white bg-opacity-40 text-black backdrop-blur-md{% endif %} shadow-md rounded-xl p-8 mx-auto space-y-4 text-lg">
+      <h2 class="text-2xl font-bold text-center">Información Personal</h2>
+      <hr class="my-2 border-gray-300 dark:border-gray-700">
+
+      <p><strong>Nombre de Usuario:</strong> {{ user.nombre_usuario }}</p>
+      <p><strong>Nombre:</strong> {{ user.nombre }}</p>
+      {% if user.apellido %}<p><strong>Apellido:</strong> {{ user.apellido }}</p>{% endif %}
+      <p><strong>Correo Electrónico:</strong> {{ user.correo_electronico }}</p>
+      {% if user.sexo %}<p><strong>Sexo:</strong> {{ user.sexo }}</p>{% endif %}
+      {% if user.fecha_nacimiento %}<p><strong>Fecha de Nacimiento:</strong> {{ user.fecha_nacimiento }}</p>{% endif %}
+      {% if user.direccion %}<p><strong>Dirección:</strong> {{ user.direccion }}</p>{% endif %}
+      {% if user.numero_telefonico %}<p><strong>Teléfono:</strong> {{ user.numero_telefonico }}</p>{% endif %}
+    </div>
+
+    <!-- Botón para editar -->
+    <div class="flex justify-center mt-6">
+      <button onclick="toggleModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl">
+        ✏️ Editar Información
+      </button>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+    <div class="bg-white rounded-xl w-full max-w-md p-6 relative text-black">
+      <h3 class="text-xl font-bold mb-4">Editar Información</h3>
+      <form method="POST" action="{% url 'editar_usuario' %}" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <label for="nombre_usuario" class="block font-semibold">Nombre de Usuario:</label>
+          <input type="text" id="nombre_usuario" name="nombre_usuario" value="{{ user.nombre_usuario }}" class="w-full border border-gray-300 rounded p-2" required>
+        </div>
+        <div>
+          <label for="correo_electronico" class="block font-semibold">Correo Electrónico:</label>
+          <input type="email" id="correo_electronico" name="correo_electronico" value="{{ user.correo_electronico }}" class="w-full border border-gray-300 rounded p-2" required>
+        </div>
+        <div>
+          <label for="numero_telefonico" class="block font-semibold">Número Telefónico:</label>
+          <input type="text" id="numero_telefonico" name="numero_telefonico" value="{{ user.numero_telefonico }}" class="w-full border border-gray-300 rounded p-2">
+        </div>
+        <div class="flex justify-end space-x-4 mt-6">
+          <button type="button" onclick="toggleModal()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancelar</button>
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Guardar</button>
+        </div>
+      </form>
+      <button onclick="toggleModal()" class="absolute top-2 right-4 text-black text-xl font-bold">&times;</button>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script>
+    const body = document.getElementById('body');
+    const titulo = document.getElementById('titulo');
+    const subtitulo = document.getElementById('subtitulo');
+    const modal = document.getElementById('modal');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        body.classList.remove('bg-gradient-to-r', 'from-green-200', 'to-blue-300', 'text-black');
+        body.classList.add('bg-blue-900', 'text-white');
+        titulo.classList.add('text-white');
+        subtitulo.classList.add('text-white');
+        titulo.classList.remove('text-black');
+        subtitulo.classList.remove('text-black');
+      } else {
+        body.classList.remove('bg-blue-900', 'text-white');
+        body.classList.add('bg-gradient-to-r', 'from-green-200', 'to-blue-300', 'text-black');
+        titulo.classList.add('text-black');
+        subtitulo.classList.add('text-black');
+        titulo.classList.remove('text-white');
+        subtitulo.classList.remove('text-white');
+      }
+    }
+
+    function toggleModal() {
+      modal.classList.toggle('hidden');
+      modal.classList.toggle('flex');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      let savedTheme = localStorage.getItem('theme') || "{{ user.tema_preferido|default:'light' }}";
+      applyTheme(savedTheme);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Habilitar Tarjeta - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+  </style>
+</head>
+<body id="body" class="min-h-screen flex items-center justify-center relative">
+
+  <!-- Encabezado fijo estilo Transporto -->
+  <header class="fixed top-4 left-4 flex items-center space-x-4 z-50">
+    <img src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png" alt="Logo" class="w-12 h-12" />
+    <div>
+      <h1 id="titulo" class="text-2xl font-bold">TRANSPORTO</h1>
+      <p id="subtitulo" class="italic">La forma inteligente de moverse</p>
+    </div>
+  </header>
+
+  <!-- Botón casita (ícono blanco sin fondo ideal para modo oscuro) -->
+  <a href="{% url 'inicio' %}" class="fixed top-4 right-4 w-12 h-12 cursor-pointer z-50" aria-label="Inicio">
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/home.png" alt="Inicio" class="w-full h-full object-contain" />
+  </a>
+
+
+  <!-- Contenedor de tarjeta -->
+  <main class="w-full max-w-sm mx-auto px-4">
+    <div class="rounded-3xl p-8 shadow-lg text-center space-y-6 bg-white bg-opacity-40 backdrop-blur-md">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQGoAXAMEapk-aH-vGP31kTHG94jw54NS5FQ&s" alt="Tarjeta TransPorto" class="mx-auto rounded-xl shadow-md" />
+      <div class="flex justify-between space-x-4">
+        <button onclick="toggleStatus('habilitar')" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition font-semibold">
+          Habilitar
+        </button>
+        <button onclick="toggleStatus('deshabilitar')" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition font-semibold">
+          Deshabilitar
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Botón Información -->
+  <div class="fixed bottom-4 right-4 z-50">
+    <button id="informacionBtn" style="display: none;" onclick="redirectToTarjeta()" class="bg-blue-700 hover:bg-blue-800 text-white py-2 px-4 rounded-md transition font-semibold">
+      Información
+    </button>
+  </div>
+
+  <script>
+    function redirectToTarjeta() {
+      window.location.href = '{% url "tarjeta" %}';
+    }
+
+    function redirectToInicio() {
+      window.location.href = '{% url "inicio" %}';
+    }
+
+    // Tema claro/oscuro automático
+    function aplicarTema(tema) {
+      const body = document.getElementById("body");
+      if (tema === 'dark') {
+        body.classList.add("bg-blue-900", "text-white");
+        body.classList.remove("bg-gradient-to-r", "from-green-200", "to-blue-200", "text-black");
+      } else {
+        body.classList.add("bg-gradient-to-r", "from-green-200", "to-blue-200", "text-black");
+        body.classList.remove("bg-blue-900", "text-white");
+      }
+    }
+
+    // Detectar tema guardado o usar el del backend
+    let temaGuardado = localStorage.getItem("theme");
+    if (!temaGuardado) {
+      temaGuardado = "{{ user.tema_preferido|default:'light' }}";
+    }
+    aplicarTema(temaGuardado);
+
+    // Función para obtener cookie CSRF
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // Botones habilitar/deshabilitar
+    function toggleStatus(action) {
+      if (action === 'habilitar') {
+        fetch('{% url "habilitar" %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+        }).then(response => {
+          if (response.ok) {
+            document.getElementById('informacionBtn').style.display = 'block';
+            Swal.fire({
+              title: 'Tarjeta Habilitada',
+              text: 'La tarjeta ha sido habilitada exitosamente.',
+              icon: 'success',
+              confirmButtonText: 'Aceptar'
+            });
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: 'No se pudo habilitar la tarjeta.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar'
+            });
+          }
+        });
+      } else {
+        Swal.fire({
+          title: 'Tarjeta Deshabilitada',
+          text: 'La tarjeta ha sido deshabilitada.',
+          icon: 'warning',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    }
+  </script>
+</body>
+</html>

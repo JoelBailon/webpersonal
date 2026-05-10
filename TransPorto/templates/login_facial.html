@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Facial - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- CSRF token meta para JS -->
+  <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body class="min-h-screen bg-gradient-to-r from-green-200 to-blue-200 flex flex-col items-center justify-start p-6">
+
+  <main class="mt-28 w-full max-w-4xl">
+    <div class="bg-white bg-opacity-40 backdrop-blur-md p-10 rounded-3xl shadow-xl w-full max-w-md mx-auto text-center">
+
+      <h2 class="text-2xl font-bold mb-8">Iniciar Sesión con Reconocimiento Facial</h2>
+
+      <video id="video" autoplay playsinline class="rounded-lg shadow-lg w-full max-w-md mx-auto"></video>
+      <div id="mensaje" class="mt-4 text-red-600 font-semibold"></div>
+    </div>
+  </main>
+
+  <canvas id="canvas" class="hidden"></canvas>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const mensaje = document.getElementById('mensaje');
+
+    // Obtener token CSRF desde meta tag
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    async function abrirCamaraYCapturar() {
+      mensaje.textContent = '';
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+
+        // Esperar a que cargue el video
+        await new Promise(resolve => video.onloadedmetadata = resolve);
+
+        // Esperar 2 segundos para estabilizar cámara
+        setTimeout(() => {
+          // Capturar imagen
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          canvas.toBlob(async (blob) => {
+            // Detener cámara
+            stream.getTracks().forEach(track => track.stop());
+
+            const formData = new FormData();
+            formData.append('foto_rostro', blob, 'foto.jpg');
+
+            try {
+              const response = await fetch("{% url 'login_facial' %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken },
+                body: formData,
+              });
+
+              if (!response.ok) {
+                throw new Error('Respuesta del servidor no OK');
+              }
+
+              const data = await response.json();
+
+              if (data.success) {
+                alert('¡Bienvenido! Acceso concedido.');
+                return JsonResponse({'success': True, 'redirect_url': '/TransPorto/inicio/'})
+
+              } else {
+                mensaje.textContent = data.error || 'No se pudo autenticar el rostro.';
+              }
+
+            } catch (error) {
+              mensaje.textContent = 'Error al enviar la imagen: ' + error.message;
+            }
+
+          }, 'image/jpeg', 0.95);
+
+        }, 2000);
+
+      } catch (err) {
+        mensaje.textContent = 'No se pudo acceder a la cámara: ' + err.message;
+      }
+    }
+
+    abrirCamaraYCapturar();
+  </script>
+</body>
+</html>

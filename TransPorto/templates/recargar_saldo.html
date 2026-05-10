@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recargar Saldo - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function handleButtonClick() {
+      window.location.href = "{% url 'inicio' %}";
+    }
+
+    function setMonto(valor) {
+      const input = document.querySelector('input[name="monto"]');
+      if(input) input.value = valor;
+    }
+
+    function applyTheme(theme) {
+      const body = document.body;
+      const headerTitle = document.getElementById('titulo');
+      const headerSubtitle = document.getElementById('subtitulo');
+
+      if(theme === 'dark') {
+        body.classList.remove('bg-gradient-to-r', 'from-green-200', 'to-blue-300', 'text-black');
+        body.classList.add('bg-blue-900', 'text-white');
+
+        if(headerTitle) {
+          headerTitle.classList.remove('text-black');
+          headerTitle.classList.add('text-white');
+        }
+
+        if(headerSubtitle) {
+          headerSubtitle.classList.remove('text-blue-800');
+          headerSubtitle.classList.add('text-white');
+        }
+      } else {
+        body.classList.remove('bg-blue-900', 'text-white');
+        body.classList.add('bg-gradient-to-r', 'from-green-200', 'to-blue-300', 'text-black');
+
+        if(headerTitle) {
+          headerTitle.classList.remove('text-white');
+          headerTitle.classList.add('text-black');
+        }
+
+        if(headerSubtitle) {
+          headerSubtitle.classList.remove('text-white');
+          headerSubtitle.classList.add('text-blue-800');
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      let savedTheme = localStorage.getItem('theme') || "{{ user.tema_preferido|default:'light' }}";
+      applyTheme(savedTheme);
+    });
+  </script>
+  <style>
+    input[name="monto"] {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #ccc;
+      width: 100%;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    input[name="monto"]:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgb(59 130 246 / 0.5);
+    }
+  </style>
+</head>
+<body
+  id="body"
+  class="min-h-screen flex justify-center items-center px-4
+    {% if user.tema_preferido == 'dark' %}
+      bg-blue-900 text-white
+    {% else %}
+      bg-gradient-to-r from-green-200 to-blue-300 text-black
+    {% endif %}
+  "
+>
+  <!-- Encabezado -->
+  <div id="header" class="absolute top-4 left-4 flex items-center space-x-3
+    {% if user.tema_preferido == 'dark' %}
+      text-white
+    {% else %}
+      text-black
+    {% endif %}
+  ">
+    <img id="logo" src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png" alt="Logo" class="w-10 h-10" />
+    <div>
+      <h1 id="titulo" class="text-xl font-bold">TRANSPORTO</h1>
+      <p id="subtitulo" class="italic text-sm
+        {% if user.tema_preferido == 'dark' %}
+          text-gray-300
+        {% else %}
+          text-blue-800
+        {% endif %}
+      ">La forma inteligente de moverse</p>
+    </div>
+  </div>
+
+  <!-- Botón casita (ícono blanco sin fondo ideal para modo oscuro) -->
+  <a href="{% url 'inicio' %}" class="fixed top-4 right-4 w-12 h-12 cursor-pointer z-50" aria-label="Inicio">
+  <img src="https://img.icons8.com/ios-filled/100/ffffff/home.png" alt="Inicio" class="w-full h-full object-contain" />
+  </a>
+
+
+  <!-- Contenedor transparente igual que Información Personal -->
+  <div id="contenido" class="rounded-xl shadow-md w-full max-w-md p-8
+      bg-white bg-opacity-40 text-black backdrop-blur-md
+  ">
+    <h2 id="tituloForm" class="text-2xl font-bold text-center text-black mb-6">Recargar Saldo</h2>
+
+    <form method="post" action="{% url 'recargar_saldo' %}" class="space-y-4">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <!-- Botones de monto sugerido -->
+      <div class="flex justify-between mb-4">
+        <button type="button" onclick="setMonto(5)" class="w-16 h-16 rounded-full border-2 border-gray-400 text-lg font-semibold hover:bg-blue-100 bg-white text-black"> $5 </button>
+        <button type="button" onclick="setMonto(10)" class="w-16 h-16 rounded-full border-2 border-gray-400 text-lg font-semibold hover:bg-blue-100 bg-white text-black"> $10 </button>
+        <button type="button" onclick="setMonto(15)" class="w-16 h-16 rounded-full border-2 border-gray-400 text-lg font-semibold hover:bg-blue-100 bg-white text-black"> $15 </button>
+        <button type="button" onclick="setMonto(20)" class="w-16 h-16 rounded-full border-2 border-gray-400 text-lg font-semibold hover:bg-blue-100 bg-white text-black"> $20 </button>
+      </div>
+
+      <!-- Campo de ingreso manual -->
+      <div>
+        <label for="monto" class="block font-semibold mb-1 text-black">Escribe tu monto</label>
+        {{ form.monto }}
+        {{ form.monto.errors }}
+      </div>
+
+      <!-- Botón enviar -->
+      <div class="flex justify-center pt-2">
+        <button type="submit" class="font-semibold px-6 py-2 rounded-lg transition bg-blue-600 text-white hover:bg-blue-700">
+          Recargar
+        </button>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>

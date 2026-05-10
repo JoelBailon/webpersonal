@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Información de la Tarjeta - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Poppins', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const body = document.getElementById('body');
+      const titulo = document.getElementById('titulo');
+      const subtitulo = document.getElementById('subtitulo');
+
+      function applyTheme(theme) {
+        if (theme === 'dark') {
+          body.classList.remove('bg-gradient-to-r', 'from-green-200', 'to-blue-200', 'text-black');
+          body.classList.add('bg-blue-900', 'text-white');
+          titulo.classList.remove('text-black');
+          titulo.classList.add('text-white');
+          subtitulo.classList.remove('text-black');
+          subtitulo.classList.add('text-white');
+        } else {
+          body.classList.remove('bg-blue-900', 'text-white');
+          body.classList.add('bg-gradient-to-r', 'from-green-200', 'to-blue-200', 'text-black');
+          titulo.classList.remove('text-white');
+          titulo.classList.add('text-black');
+          subtitulo.classList.remove('text-white');
+          subtitulo.classList.add('text-black');
+        }
+      }
+
+      let savedTheme = localStorage.getItem('theme') || "{{ user.tema_preferido|default:'light' }}";
+      applyTheme(savedTheme);
+    });
+
+    function redirectToInicio() {
+      window.location.href = '{% url "inicio" %}';
+    }
+
+    function redirectToSaldo() {
+      window.location.href = '{% url "saldo" %}';
+    }
+  </script>
+</head>
+<body
+  id="body"
+  class="{% if user.tema_preferido == 'dark' %}bg-blue-900 text-white{% else %}bg-gradient-to-r from-green-200 to-blue-200 text-black{% endif %} min-h-screen flex flex-col items-center justify-start p-6"
+>
+
+  <!-- Botón casita (ícono blanco sin fondo ideal para modo oscuro) -->
+  <a href="{% url 'inicio' %}" class="fixed top-4 right-4 w-12 h-12 cursor-pointer z-50" aria-label="Inicio">
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/home.png" alt="Inicio" class="w-full h-full object-contain" />
+  </a>
+
+
+  <!-- Encabezado fijo -->
+  <header
+    class="fixed top-0 left-0 w-full max-w-full flex items-center space-x-4 bg-transparent p-4 z-40"
+  >
+    <img
+      src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png"
+      alt="Logo"
+      class="w-14 h-auto"
+    />
+    <div>
+      <h1 id="titulo" class="text-3xl font-bold leading-none">TRANSPORTO</h1>
+      <p id="subtitulo" class="italic leading-none">La forma inteligente de moverse</p>
+    </div>
+  </header>
+
+  <!-- Contenedor principal -->
+  <main
+    class="flex flex-col items-center justify-center flex-grow pt-28 w-full px-6 max-w-md space-y-6"
+  >
+    <div
+      class="{% if user.tema_preferido == 'dark' %}bg-[#1e1a2a] text-white{% else %}bg-white bg-opacity-80 text-black backdrop-blur-md{% endif %} p-8 rounded-3xl shadow-lg w-full space-y-4"
+    >
+      <h3
+        id="tituloTarjeta"
+        class="text-2xl font-bold text-center {% if user.tema_preferido == 'dark' %}text-white{% else %}text-blue-900{% endif %}"
+      >
+        Información de la Tarjeta
+      </h3>
+
+      <div>
+        <label class="block text-sm font-semibold {% if user.tema_preferido == 'dark' %}text-white{% else %}text-gray-700{% endif %} mb-1">Número de Tarjeta</label>
+        <p class="{% if user.tema_preferido == 'dark' %}bg-[#2a2736] text-white border border-gray-600{% else %}bg-gray-100 text-black border border-gray-300{% endif %} p-2 rounded-md">{{ numero_tarjeta }}</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold {% if user.tema_preferido == 'dark' %}text-white{% else %}text-gray-700{% endif %} mb-1">Nombre de Usuario</label>
+        <p class="{% if user.tema_preferido == 'dark' %}bg-[#2a2736] text-white border border-gray-600{% else %}bg-gray-100 text-black border border-gray-300{% endif %} p-2 rounded-md">{{ nombre_usuario }}</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold {% if user.tema_preferido == 'dark' %}text-white{% else %}text-gray-700{% endif %} mb-1">Fecha de Expiración</label>
+        <p class="{% if user.tema_preferido == 'dark' %}bg-[#2a2736] text-white border border-gray-600{% else %}bg-gray-100 text-black border border-gray-300{% endif %} p-2 rounded-md">{{ fecha_expiracion }}</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold {% if user.tema_preferido == 'dark' %}text-white{% else %}text-gray-700{% endif %} mb-1">Código de Seguridad</label>
+        <p class="{% if user.tema_preferido == 'dark' %}bg-[#2a2736] text-white border border-gray-600{% else %}bg-gray-100 text-black border border-gray-300{% endif %} p-2 rounded-md">{{ codigo_seguridad }}</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold {% if user.tema_preferido == 'dark' %}text-white{% else %}text-gray-700{% endif %} mb-1">Fecha de Emisión</label>
+        <p class="{% if user.tema_preferido == 'dark' %}bg-[#2a2736] text-white border border-gray-600{% else %}bg-gray-100 text-black border border-gray-300{% endif %} p-2 rounded-md">{{ fecha_emision }}</p>
+      </div>
+
+      <div class="pt-4">
+        <button
+          onclick="redirectToSaldo()"
+          class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 rounded-md transition"
+        >
+          Ver Saldo
+        </button>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

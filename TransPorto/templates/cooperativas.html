@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cooperativas - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+  </style>
+</head>
+<body
+  id="body"
+  class="{% if user.tema_preferido == 'dark' %}bg-blue-900 text-white{% else %}bg-gradient-to-r from-green-200 to-blue-300 text-black{% endif %} min-h-screen relative"
+>
+  <!-- Botón casita (ícono blanco sin fondo ideal para modo oscuro) -->
+  <a href="{% url 'inicio' %}" class="fixed top-4 right-4 w-12 h-12 cursor-pointer z-50" aria-label="Inicio">
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/home.png" alt="Inicio" class="w-full h-full object-contain" />
+  </a>
+
+
+  <!-- Encabezado -->
+  <header class="fixed top-0 left-0 w-full max-w-full flex items-center space-x-4 bg-transparent p-4 z-40">
+    <img src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png" alt="bus" class="w-14 h-auto" />
+    <div>
+      <h1 id="titulo" class="text-3xl font-bold leading-none transition-colors duration-300">
+        TRANSPORTO
+      </h1>
+      <p id="subtitulo" class="italic leading-none transition-colors duration-300">
+        La forma inteligente de moverse
+      </p>
+    </div>
+  </header>
+
+  <main class="flex flex-col items-center justify-start flex-grow pt-24 w-1/2 mx-auto px-6">
+    <div id="contenedorCooperativas" class="w-full {% if user.tema_preferido == 'dark' %}bg-[#1e1a2a] text-white{% else %}bg-white bg-opacity-40 text-black backdrop-blur-md{% endif %} rounded-2xl p-6 shadow-md space-y-6">
+      <h2 id="tituloSecundario" class="text-2xl font-bold text-center">Cooperativas</h2>
+      <div class="flex flex-col space-y-4">
+        {% for cooperativa in cooperativas %}
+        <a href="{% url 'rutas' cooperativa.id_cooperativa %}" class="block text-center py-3 px-4 rounded-lg font-semibold transition {% if user.tema_preferido == 'dark' %}bg-[#3b2f59] hover:bg-[#2b2242] text-white{% else %}bg-blue-600 hover:bg-blue-700 text-white{% endif %}">
+          {{ cooperativa.nombre }}
+        </a>
+        {% empty %}
+        <p class="text-center {% if user.tema_preferido == 'dark' %}text-gray-400{% else %}text-gray-700{% endif %}">No hay cooperativas disponibles.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function redirectToInicio() {
+      window.location.href = "{% url 'inicio' %}";
+    }
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    const body = document.getElementById('body');
+    const titulo = document.getElementById('titulo');
+    const subtitulo = document.getElementById('subtitulo');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        body.classList.remove('bg-gradient-to-r', 'from-green-200', 'to-blue-300', 'text-black');
+        body.classList.add('bg-blue-900', 'text-white');
+        titulo.classList.remove('text-black');
+        titulo.classList.add('text-white');
+        subtitulo.classList.remove('text-black');
+        subtitulo.classList.add('text-white');
+      } else {
+        body.classList.remove('bg-blue-900', 'text-white');
+        body.classList.add('bg-gradient-to-r', 'from-green-200', 'to-blue-300', 'text-black');
+        titulo.classList.remove('text-white');
+        titulo.classList.add('text-black');
+        subtitulo.classList.remove('text-white');
+        subtitulo.classList.add('text-black');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      let savedTheme = localStorage.getItem('theme') || "{{ user.tema_preferido|default:'light' }}";
+      applyTheme(savedTheme);
+    });
+  </script>
+</body>
+</html>

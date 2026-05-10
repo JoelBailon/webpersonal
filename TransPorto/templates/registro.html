@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-r from-green-200 to-blue-200 flex flex-col items-center justify-start p-6">
+
+  <!-- Encabezado igual a 'inicio' -->
+  <header class="fixed top-4 left-4 flex items-center space-x-3 z-50">
+    <img src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png" alt="Logo" class="w-14 h-14" />
+    <div>
+      <h1 class="text-3xl font-bold text-black leading-none">TRANSPORTO</h1>
+      <p class="italic text-blue-800 text-sm leading-tight">La forma inteligente de moverse</p>
+    </div>
+  </header>
+
+  <!-- Contenedor del formulario -->
+  <main class="mt-28 w-full max-w-4xl">
+    <div class="bg-white bg-opacity-40 backdrop-blur-md p-10 rounded-3xl shadow-xl w-full max-w-xl mx-auto">
+
+      <h2 class="text-2xl font-bold text-center text-black-900 mb-8">Registrarse</h2>
+
+      <form method="post" enctype="multipart/form-data" class="space-y-5">
+        {% csrf_token %}
+
+        <div>
+          <label for="nombre" class="block text-lg font-bold mb-1">NOMBRES</label>
+          <input type="text" id="nombre" name="nombre" class="w-full p-3 rounded-lg bg-white" placeholder="Nombres" required>
+        </div>
+
+        <div>
+          <label for="apellido" class="block text-lg font-bold mb-1">APELLIDO</label>
+          <input type="text" id="apellido" name="apellido" class="w-full p-3 rounded-lg bg-white" placeholder="Apellido" required>
+        </div>
+
+        <div>
+          <label for="fecha_nacimiento" class="block text-lg font-bold mb-1">Fecha de Nacimiento</label>
+          <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="w-full p-3 rounded-lg bg-white" required>
+        </div>
+
+        <div>
+          <label for="sexo" class="block text-lg font-bold mb-1">SEXO</label>
+          <select id="sexo" name="sexo" class="w-full p-3 rounded-lg bg-white" required>
+            <option value="" disabled selected>Selecciona un género</option>
+            <option value="masculino">Masculino</option>
+            <option value="femenino">Femenino</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="direccion" class="block text-lg font-bold mb-1">DIRECCIÓN</label>
+          <input type="text" id="direccion" name="direccion" class="w-full p-3 rounded-lg bg-white" placeholder="Dirección" required>
+        </div>
+
+        <div>
+          <label for="correo_electronico" class="block text-lg font-bold mb-1">Correo Electrónico</label>
+          <input type="email" id="correo_electronico" name="correo_electronico" class="w-full p-3 rounded-lg bg-white" placeholder="ejemplo@correo.com" required>
+        </div>
+
+        <div>
+          <label for="numero_telefonico" class="block text-lg font-bold mb-1">CELULAR</label>
+          <input type="text" id="numero_telefonico" name="numero_telefonico" class="w-full p-3 rounded-lg bg-white" placeholder="Celular" required>
+        </div>
+
+        <div>
+          <label for="nombre_usuario" class="block text-lg font-bold mb-1">Nombre de Usuario</label>
+          <input type="text" id="nombre_usuario" name="nombre_usuario" class="w-full p-3 rounded-lg bg-white" placeholder="Usuario" required>
+        </div>
+
+        <div>
+          <label for="contraseña" class="block text-lg font-bold mb-1">Contraseña</label>
+          <div class="relative">
+            <input type="password" id="contraseña" name="contraseña" class="w-full p-3 rounded-lg bg-white pr-12" placeholder="Contraseña" required>
+            <button type="button" id="togglePassword" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-300 hover:bg-gray-400 px-3 py-1 rounded-lg text-sm font-bold transition">
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <!-- Solo foto con cámara -->
+        <div class="my-4">
+          <label class="block text-lg font-bold mb-2">Tomar foto con cámara:</label>
+          <video id="video" width="320" height="240" autoplay class="rounded-lg border"></video>
+          <button type="button" id="btnTomarFoto" class="mt-3 bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Tomar Foto</button>
+          <canvas id="canvas" width="320" height="240" class="hidden rounded-lg border mt-3"></canvas>
+          <input type="hidden" name="foto_rostro_camara" id="foto_rostro_camara" required />
+        </div>
+
+        <div class="text-center mt-6">
+          <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-6 py-3 rounded-full shadow-md transition-transform hover:scale-105">
+            Registrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('togglePassword').addEventListener('click', function () {
+      const passwordInput = document.getElementById('contraseña');
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      this.textContent = type === 'password' ? '👁️' : '👀';
+    });
+
+    // Cámara y captura
+    const video = document.getElementById('video');
+    const btnTomarFoto = document.getElementById('btnTomarFoto');
+    const canvas = document.getElementById('canvas');
+    const inputFotoCamara = document.getElementById('foto_rostro_camara');
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+          video.play();
+        })
+        .catch(() => {
+          alert('No se pudo acceder a la cámara.');
+        });
+    } else {
+      alert('Tu navegador no soporta acceso a cámara.');
+    }
+
+    btnTomarFoto.addEventListener('click', () => {
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.classList.remove('hidden');
+
+      // Pasa la imagen base64 al input oculto para backend
+      const dataURL = canvas.toDataURL('image/png');
+      inputFotoCamara.value = dataURL;
+    });
+  </script>
+</body>
+</html>

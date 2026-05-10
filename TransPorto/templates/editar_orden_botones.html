@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editar Orden de Botones - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .dragging {
+      opacity: 0.5;
+    }
+    .over {
+      outline: 2px dashed #2563eb;
+    }
+  </style>
+</head>
+<body class="min-h-screen relative bg-gradient-to-r from-green-200 to-blue-300 text-black">
+
+  <!-- BARRA SUPERIOR: Solo logo y texto -->
+  <header class="fixed top-0 left-0 right-0 bg-transparent flex items-start px-6 py-4 z-50">
+    <div class="flex items-center space-x-3">
+      <img src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png" alt="Logo" class="w-14 h-14" />
+      <div>
+        <h1 id="titulo" class="text-2xl font-bold leading-none">TRANSPORTO</h1>
+        <p id="subtitulo" class="italic text-sm leading-tight">La forma inteligente de moverse</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="pt-28 px-6 flex justify-center">
+    <section class="bg-white bg-opacity-40 backdrop-blur-md p-12 rounded-3xl w-full max-w-md shadow-lg">
+      <h1 class="text-3xl font-bold mb-8 text-center text-black">Editar Orden de Botones de Inicio</h1>
+
+      <ul id="lista-botones" class="space-y-4">
+        {% for boton in orden %}
+          <li draggable="true" data-boton="{{ boton.key }}" 
+              class="cursor-move bg-blue-600 text-white p-4 rounded shadow select-none">
+            {{ boton.texto }}
+          </li>
+        {% endfor %}
+      </ul>
+
+      <button id="guardarBtn" 
+        class="mt-8 w-full px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition font-semibold text-lg">
+        Guardar Orden
+      </button>
+    </section>
+  </main>
+
+  <script>
+    // Función para obtener cookie CSRF
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // Tema guardado
+    const body = document.body;
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        body.classList.add('bg-blue-900', 'text-white');
+        body.classList.remove('bg-gradient-to-r', 'from-green-200', 'to-blue-300', 'text-black');
+      } else {
+        body.classList.remove('bg-blue-900', 'text-white');
+        body.classList.add('bg-gradient-to-r', 'from-green-200', 'to-blue-300', 'text-black');
+      }
+    }
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
+    // --- Drag and drop logic ---
+    const lista = document.getElementById('lista-botones');
+    let dragSrcEl = null;
+
+    function handleDragStart(e) {
+      dragSrcEl = this;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', this.innerHTML);
+      this.classList.add('dragging');
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      return false;
+    }
+
+    function handleDragEnter() {
+      this.classList.add('over');
+    }
+
+    function handleDragLeave() {
+      this.classList.remove('over');
+    }
+
+    function handleDrop(e) {
+      e.stopPropagation();
+      if (dragSrcEl !== this) {
+        const tempHTML = dragSrcEl.innerHTML;
+        dragSrcEl.innerHTML = this.innerHTML;
+        this.innerHTML = tempHTML;
+
+        const tempData = dragSrcEl.dataset.boton;
+        dragSrcEl.dataset.boton = this.dataset.boton;
+        this.dataset.boton = tempData;
+      }
+      return false;
+    }
+
+    function handleDragEnd() {
+      this.classList.remove('dragging');
+      const items = lista.querySelectorAll('li');
+      items.forEach(item => item.classList.remove('over'));
+    }
+
+    const items = lista.querySelectorAll('li');
+    items.forEach(function(item) {
+      item.addEventListener('dragstart', handleDragStart);
+      item.addEventListener('dragenter', handleDragEnter);
+      item.addEventListener('dragover', handleDragOver);
+      item.addEventListener('dragleave', handleDragLeave);
+      item.addEventListener('drop', handleDrop);
+      item.addEventListener('dragend', handleDragEnd);
+    });
+
+    document.getElementById('guardarBtn').addEventListener('click', () => {
+      const nuevoOrden = [];
+      lista.querySelectorAll('li').forEach(li => {
+        nuevoOrden.push(li.dataset.boton);
+      });
+
+      fetch("{% url 'editar_orden_botones' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify({ orden: nuevoOrden })
+      }).then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Orden guardado correctamente');
+            window.location.href = "{% url 'inicio' %}";
+          } else {
+            alert('Error al guardar orden');
+          }
+        });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Saldo - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+  </style>
+  <script>
+    function applyTheme(theme) {
+      const body = document.getElementById('body');
+      const titulo = document.getElementById('titulo');
+      const eslogan = document.getElementById('eslogan');
+      if(theme === 'dark') {
+        body.classList.remove('bg-gradient-to-r', 'from-green-200', 'to-blue-300', 'text-black');
+        body.classList.add('bg-blue-900', 'text-white');
+        if(titulo) { titulo.classList.remove('text-black'); titulo.classList.add('text-white'); }
+        if(eslogan) { eslogan.classList.remove('text-blue-800'); eslogan.classList.add('text-blue-300'); }
+      } else {
+        body.classList.remove('bg-blue-900', 'text-white');
+        body.classList.add('bg-gradient-to-r', 'from-green-200', 'to-blue-300', 'text-black');
+        if(titulo) { titulo.classList.remove('text-white'); titulo.classList.add('text-black'); }
+        if(eslogan) { eslogan.classList.remove('text-blue-300'); eslogan.classList.add('text-blue-800'); }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      let savedTheme = localStorage.getItem('theme') || "{{ user.tema_preferido|default:'light' }}";
+      applyTheme(savedTheme);
+    });
+  </script>
+</head>
+<body
+  id="body"
+  class="{% if user.tema_preferido == 'dark' %}bg-blue-900 text-white{% else %}bg-gradient-to-r from-green-200 to-blue-300 text-black{% endif %} min-h-screen relative"
+>
+
+  <!-- Header con logo y eslogan -->
+  <header class="fixed top-0 left-0 right-0 bg-transparent flex justify-between items-center px-6 py-4 z-50">
+    <div class="flex items-center space-x-3">
+      <img src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png" alt="Logo" class="w-14 h-14" />
+      <div>
+        <h1 id="titulo" class="text-2xl font-bold leading-none {% if user.tema_preferido == 'dark' %}text-white{% else %}text-black{% endif %}">TRANSPORTO</h1>
+        <p id="eslogan" class="italic text-sm leading-tight {% if user.tema_preferido == 'dark' %}text-blue-300{% else %}text-blue-800{% endif %}">La forma inteligente de moverse</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Botón casita -->
+  <a href="{% url 'inicio' %}" class="fixed top-4 right-4 w-12 h-12 cursor-pointer z-50" aria-label="Inicio">
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/home.png" alt="Inicio" class="w-full h-full object-contain" />
+  </a>
+
+  <!-- Contenido principal -->
+  <main class="pt-28 px-6 flex flex-col items-center space-y-10">
+
+    <!-- Saldo actual -->
+    <div class="{% if user.tema_preferido == 'dark' %}bg-[#1e1a2a] text-white{% else %}bg-white bg-opacity-40 text-black backdrop-blur-md{% endif %} rounded-3xl p-8 shadow-lg w-full max-w-md text-center">
+      <h2 class="text-2xl font-bold {% if user.tema_preferido == 'dark' %}text-white{% else %}text-blue-900{% endif %} mb-3">Saldo Actual</h2>
+      <div class="inline-block">
+        <span class="text-4xl font-extrabold {% if user.tema_preferido == 'dark' %}text-white{% else %}text-black{% endif %}">${{ saldo|floatformat:2 }}</span>
+      </div>
+    </div>
+
+    <!-- Historial de movimientos -->
+    <div class="{% if user.tema_preferido == 'dark' %}bg-[#1e1a2a] text-white{% else %}bg-white bg-opacity-40 text-black backdrop-blur-md{% endif %} rounded-3xl p-6 shadow-lg w-full max-w-5xl" style="max-height: 400px; overflow-y: auto;">
+      <h3 class="text-xl font-bold mb-6 text-center {% if user.tema_preferido == 'dark' %}text-white{% else %}text-blue-900{% endif %}">Historial de Movimientos</h3>
+
+      {% if movimientos %}
+        <table class="min-w-full divide-y {% if user.tema_preferido == 'dark' %}divide-gray-700{% else %}divide-gray-300{% endif %} text-sm">
+          <thead class="{% if user.tema_preferido == 'dark' %}bg-[#2a2736] text-white{% else %}bg-blue-100 text-blue-900{% endif %} uppercase text-xs">
+            <tr>
+              <th class="px-6 py-3 text-left font-semibold">Fecha</th>
+              <th class="px-6 py-3 text-left font-semibold">Descripción</th>
+              <th class="px-6 py-3 text-center font-semibold">Pasajes</th>
+              <th class="px-6 py-3 text-left font-semibold">Monto</th>
+              <th class="px-6 py-3 text-left font-semibold">Saldo</th>
+            </tr>
+          </thead>
+          <tbody class="{% if user.tema_preferido == 'dark' %}bg-[#1e1a2a] text-white{% else %}bg-white bg-opacity-60 text-black{% endif %} divide-y {% if user.tema_preferido == 'dark' %}divide-gray-700{% else %}divide-gray-200{% endif %}">
+            {% for movimiento in movimientos %}
+            <tr class="hover:{% if user.tema_preferido == 'dark' %}bg-gray-800{% else %}bg-blue-50{% endif %} transition">
+              <td class="px-6 py-4 whitespace-nowrap">{{ movimiento.fecha|date:"d/m/Y H:i" }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ movimiento.descripcion }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                {% if movimiento.tipo == 'pago' %}
+                  {{ movimiento.cantidad_pasajes }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap font-semibold
+                  {% if movimiento.tipo == 'pago' %}
+                    {% if user.tema_preferido == 'dark' %}text-red-400{% else %}text-red-600{% endif %}
+                  {% else %}
+                    {% if user.tema_preferido == 'dark' %}text-green-400{% else %}text-green-600{% endif %}
+                  {% endif %}
+                ">
+                {% if movimiento.tipo == 'pago' %}-{% else %}+{% endif %}${{ movimiento.monto|floatformat:2 }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap font-mono text-gray-400">
+                ${{ movimiento.saldo_despues|floatformat:2 }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="{% if user.tema_preferido == 'dark' %}text-gray-400{% else %}text-gray-700{% endif %} text-center">No hay movimientos registrados aún.</p>
+      {% endif %}
+    </div>
+
+  </main>
+
+  <!-- Botones inferiores -->
+  <div class="fixed bottom-4 left-4">
+    <a href="{% url 'realizar_pago' %}" class="bg-blue-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl shadow font-semibold transition-transform hover:scale-105">
+      Realizar Pago (por QR)
+    </a>
+  </div>
+
+  <div class="fixed bottom-4 right-4">
+    <a href="{% url 'recargar_saldo' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl shadow font-semibold transition-transform hover:scale-105">
+      Recargar
+    </a>
+  </div>
+
+</body>
+</html>

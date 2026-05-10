@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Realizar Pago - Transporto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+    .cantidad-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; user-select: none; }
+    .cantidad-btn.active { background-color: #2563eb; color: white; }
+  </style>
+  <script>
+    const precioUnitario = 0.40;
+    let cantidadSeleccionada = 1;
+
+    function seleccionarCantidad(cantidad) {
+      cantidadSeleccionada = cantidad;
+      // Actualiza el campo oculto
+      document.getElementById('cantidad_pasajes').value = cantidad;
+      // Actualiza el monto total mostrado
+      document.getElementById('monto_total').innerText = `$${(cantidad * precioUnitario).toFixed(2)}`;
+      // Actualiza estilos botones activos
+      document.querySelectorAll('.cantidad-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${cantidad}`).classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      seleccionarCantidad(1);  // Valor inicial 1
+
+      {% for message in messages %}
+        {% if message.tags == "error" %}
+          alert("{{ message.message }}");
+        {% endif %}
+      {% endfor %}
+    });
+  </script>
+</head>
+<body
+  id="body"
+  class="{% if user.tema_preferido == 'dark' %}bg-blue-900 text-white{% else %}bg-gradient-to-r from-green-200 to-blue-200 text-black{% endif %} min-h-screen flex flex-col items-center justify-center"
+>
+
+  <!-- Botón casita -->
+  <a href="{% url 'inicio' %}" class="fixed top-4 right-4 w-12 h-12 cursor-pointer z-50" aria-label="Inicio">
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/home.png" alt="Inicio" class="w-full h-full object-contain" />
+  </a>
+
+  <!-- Header -->
+  <header class="fixed top-4 left-4 flex items-center space-x-4 z-50">
+    <img src="https://img.icons8.com/?size=160&id=AA5D5GKwWD38&format=png" alt="Logo" class="w-12 h-12">
+    <div>
+      <h1 id="titulo" class="text-2xl font-bold {% if user.tema_preferido == 'dark' %}text-white{% else %}text-blue-700{% endif %}">TRANSPORTO</h1>
+      <p id="subtitulo" class="italic text-sm {% if user.tema_preferido == 'dark' %}text-gray-300{% else %}text-blue-700{% endif %}">La forma inteligente de moverse</p>
+    </div>
+  </header>
+
+  <!-- Contenedor principal -->
+  <main id="main-container" class="w-full max-w-md bg-white bg-opacity-40 backdrop-blur-md text-black p-8 rounded-3xl shadow-lg text-center">
+    <h2 class="text-2xl font-bold mb-4">Realizar Pago</h2>
+    <p class="text-center text-3xl font-extrabold mb-6" id="monto_total">$0.40</p>
+
+    <form method="post" action="{% url 'realizar_pago' %}" class="space-y-6">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <!-- Selección de cooperativa -->
+      <div>
+        <label class="block font-bold mb-2 text-black">Selecciona una Cooperativa:</label>
+        <div class="rounded-lg shadow-sm p-2 bg-white">
+          {{ form.cooperativa }}
+        </div>
+      </div>
+
+      <!-- Selección de cantidad -->
+      <div>
+        <label class="block font-bold mb-2 text-black">Cantidad de Pasajes:</label>
+        <div class="flex justify-center gap-4">
+          <div id="btn-1" class="cantidad-btn bg-white shadow" onclick="seleccionarCantidad(1)">1</div>
+          <div id="btn-2" class="cantidad-btn bg-white shadow" onclick="seleccionarCantidad(2)">2</div>
+          <div id="btn-3" class="cantidad-btn bg-white shadow" onclick="seleccionarCantidad(3)">3</div>
+          <div id="btn-4" class="cantidad-btn bg-white shadow" onclick="seleccionarCantidad(4)">4</div>
+        </div>
+      </div>
+
+      <!-- Campo oculto para cantidad -->
+      <input type="hidden" name="cantidad_pasajes" id="cantidad_pasajes" value="1">
+
+      <div class="flex justify-center">
+        <button type="submit"
+          class="font-semibold px-6 py-2 rounded-full transition-transform hover:scale-105
+            {% if user.tema_preferido == 'dark' %}
+              bg-blue-700 text-white hover:bg-blue-600
+            {% else %}
+              bg-blue-600 text-white hover:bg-blue-700
+            {% endif %}">
+          Pagar
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <!-- Botón Recargar -->
+  <div class="fixed bottom-4 right-4">
+    <a href="{% url 'recargar_saldo' %}"
+       class="font-semibold px-4 py-2 rounded-lg shadow transition-transform hover:scale-105
+         {% if user.tema_preferido == 'dark' %}
+           bg-blue-700 text-white hover:bg-blue-600
+         {% else %}
+           bg-blue-600 text-white hover:bg-blue-700
+         {% endif %}">
+      Recargar
+    </a>
+  </div>
+</body>
+</html>
