@@ -7,6 +7,7 @@ from . import views
 
 urlpatterns = [
     # Página principal
+    path('prueba/', views.prueba, name='prueba'),
     path('', views.index, name='index'),
 
     # Autenticación
